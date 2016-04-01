@@ -42,7 +42,7 @@ class BaseTranslator:
             self.load_file(file_path)
 
     def load_file(self, file_path):
-        *namespace, locale, ext = os.path.basename(file_path).split('.')
+        *namespace, locale, ext = os.path.basename(file_path).split('_')
         namespace = '.'.join(namespace) if namespace else None
 
         try:

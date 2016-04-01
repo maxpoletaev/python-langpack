@@ -1,4 +1,3 @@
-from importlib.machinery import SourceFileLoader
 from importlib import import_module
 
 
@@ -35,9 +34,12 @@ class YamlLoader(BaseLoader):
 
 
 class PythonLoader(BaseLoader):
-    def __init__(self, module_name='export', *args, **kwargs):
+    def __init__(self, module_name='translations', *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.module_name = module_name
 
     def load_file(self, file_path):
-        return SourceFileLoader(self.module_name, file_path)
+        module = dict()
+        with open(file_path) as f:
+            exec(f.read(), module)
+        return module[self.module_name]
