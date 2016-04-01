@@ -1,2 +1,2 @@
-class TranslatorException(Exception):
+class TranslatorWarning(UserWarning):
     pass

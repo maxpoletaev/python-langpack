@@ -1,7 +1,8 @@
 from collections import defaultdict
+import warnings
 import os
 
-from .exceptions import TranslatorException
+from .exceptions import TranslatorWarning
 from .pluralizers import get_plural_form
 from .utils import safe_format
 
@@ -42,17 +43,17 @@ class BaseTranslator:
             self.load_file(file_path)
 
     def load_file(self, file_path):
-        *namespace, locale, ext = os.path.basename(file_path).split('_')
+        *namespace, locale, ext = os.path.basename(file_path).split('.')
         namespace = '.'.join(namespace) if namespace else None
 
         try:
             loader = self.loaders[ext]
         except KeyError:
-            raise TranslatorException(
-                'No loader found for .{} file'.format(ext))
-
-        translations = loader.load_file(file_path)
-        self.add_translations(locale, namespace, translations)
+            msg = 'No loader found for .{} file'.format(ext)
+            warnings.warn(msg, TranslatorWarning)
+        else:
+            translations = loader.load_file(file_path)
+            self.add_translations(locale, namespace, translations)
 
     def add_translations(self, locale=None, namespace=None, translations={}):
         for str_id, value in translations.items():
