@@ -36,6 +36,9 @@ class TestTranslator:
         result = self.translator.translate('hello', name='John')
         test.assert_equal(result, 'Hello, John!')
 
+        result = self.translator.translate('hello')
+        test.assert_equal(result, 'Hello, {name}!')
+
         result = self.translator.translate('i_have_apples', count=0)
         test.assert_equal(result, 'I have no apples')
 

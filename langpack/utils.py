@@ -1,14 +1,13 @@
 from importlib import import_module
 
 
+class safedict(dict):
+    def __missing__(self, key):
+        return '{' + key + '}'
+
+
 def safe_format(source, **kwargs):
-    # TODO: perfomance problem
-    while True:
-        try:
-            return source.format(**kwargs)
-        except KeyError as e:
-            e = e.args[0]
-            kwargs[e] = '{%s}' % e
+    return source.format_map(safedict(**kwargs))
 
 
 def import_class(path):
