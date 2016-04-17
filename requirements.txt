@@ -1,0 +1,6 @@
+pytest==2.8.7
+pytest-cov==2.2.1
+pytest-django==2.9.1
+django==1.9
+hjson==1.5.3
+PyYAML==3.11

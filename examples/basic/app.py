@@ -11,10 +11,8 @@ translator = Translator()
 translator.register_loader(YamlLoader(), ['yaml', 'yml'])
 translator.load_directory(os.path.join(BASE_DIR, 'locale'))
 
-
 # Cretae shortcut for translation function
 trans = translator.translate
-
 
 # Just use!
 

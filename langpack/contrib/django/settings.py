@@ -2,7 +2,6 @@ from django.conf import settings
 
 
 LANGPACK_LOADERS = getattr(settings, 'LANGPACK_LOADERS', [
-    ('langpack.loaders.YamlLoader', ['yaml', 'yml']),
     ('langpack.loaders.JsonLoader', ['json']),
 ])
 
