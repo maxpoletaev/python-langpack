@@ -12,13 +12,14 @@ class BaseTranslator:
         self.translations = defaultdict(dict)
         self.loaders = {}
 
-    def switch_lang(self):
+    def switch_lang(self, lang):
         raise NotImplementedError()
 
-    def get_current_lang(self):
+    def get_current_lang(self, lang):
         raise NotImplementedError()
 
     def register_loader(self, loader, extensions):
+        assert type(loader) != type, 'Loader should be an instance, not a class.'
         for ext in extensions:
             self.loaders[ext] = loader
 
@@ -70,5 +71,5 @@ class Translator(BaseTranslator):
     def get_current_lang(self):
         return self.current_lang
 
-    def set_current_lang(self, lang):
+    def switch_lang(self, lang):
         self.current_lang = lang

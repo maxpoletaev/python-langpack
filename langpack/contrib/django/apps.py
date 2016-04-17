@@ -1,13 +1,14 @@
-from importlib import import_module
 import os
 
 from django.apps import apps, AppConfig
 
-from .translator import DjangoTranslator
-from . import settings
+from langpack.contrib.django.translators import DjangoTranslator
+from langpack.contrib.django import settings
+from langpack.utils import import_class
 
 
 class LangPackConfig(AppConfig):
+    name = 'langpack.contrib.django'
     label = 'langpack'
 
     def ready(self):
@@ -16,10 +17,10 @@ class LangPackConfig(AppConfig):
         if settings.LANGPACK_USE_APP_DIRS:
             self.load_apps_translations()
 
-    def create_translator():
+    def create_translator(self):
         translator = DjangoTranslator()
         for loader_path, extensions in settings.LANGPACK_LOADERS:
-            loader_class = import_module(loader_path)
+            loader_class = import_class(loader_path)
             translator.register_loader(loader_class(), extensions)
             return translator
 

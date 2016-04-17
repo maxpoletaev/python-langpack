@@ -1,5 +1,5 @@
 from django.utils.functional import lazy
-from django import apps
+from django.apps import apps
 
 
 def trans(*args, **kwargs):

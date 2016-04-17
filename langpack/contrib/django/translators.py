@@ -1,4 +1,4 @@
-from i18next.translator import BaseTranslator
+from langpack.translators import BaseTranslator
 from django.utils import translation
 
 
