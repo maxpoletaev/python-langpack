@@ -33,6 +33,18 @@ class YamlLoader(BaseLoader):
         return self.yaml.load(contents)
 
 
+class HjsonLoader(BaseLoader):
+    def __init__(self, *args, **kwargs):
+        try:
+            self.hjson = import_module('hjson')
+        except ImportError:
+            err = 'Install hjson package for using HjsonLoader or disable this loader.'
+            raise ImportError(err)
+
+    def load_contents(self, contents):
+        return self.hjson.loads(contents)
+
+
 class PythonLoader(BaseLoader):
     def __init__(self, module_name='translations', *args, **kwargs):
         super().__init__(*args, **kwargs)

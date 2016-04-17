@@ -1,7 +1,9 @@
-from langpack.loaders import JsonLoader, YamlLoader, PythonLoader
-from nose import tools as test
 import tempfile
 import os
+
+from nose import tools as test
+from langpack.loaders import (
+    JsonLoader, YamlLoader, HjsonLoader, PythonLoader)
 
 
 class TestJsonLoader:
@@ -20,6 +22,15 @@ class TestYamlLoader:
     def test_load_contents(self):
         contents = self.loader.load_contents('key1: value1')
         test.assert_equal(contents, {'key1': 'value1'})
+
+
+class TestHjsonLoader:
+    def setup(self):
+        self.loader = HjsonLoader()
+
+    def test_load_contents(self):
+        contents = self.loader.load_contents('{\nfoo: bar\n}')  # eof after `{` is required
+        test.assert_equal(contents, {'foo': 'bar'})
 
 
 class TestPythonLoader:
