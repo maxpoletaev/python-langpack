@@ -1,0 +1,5 @@
+welcome: "Hello, {name}!"
+new_messages:
+  zero: "You does't have new messages"
+  one: "You have one new message"
+  many: "You have {count} new messages"
