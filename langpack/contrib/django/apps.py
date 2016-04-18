@@ -1,10 +1,11 @@
 import os
 
 from django.apps import apps, AppConfig
+from langpack.utils import import_class
+from langpack import pluralizers
 
 from langpack.contrib.django.translators import DjangoTranslator
 from langpack.contrib.django import settings
-from langpack.utils import import_class
 
 
 class LangPackConfig(AppConfig):
@@ -13,9 +14,15 @@ class LangPackConfig(AppConfig):
 
     def ready(self):
         self.translator = self.create_translator()
+        self.register_pluralizers()
         self.load_project_translations()
         if settings.LANGPACK_USE_APP_DIRS:
             self.load_apps_translations()
+
+    def register_pluralizers(self):
+        for lang, fn_path in settings.LANGPACK_PLURALIZERS.items():
+            pluralizer = import_class(fn_path)
+            pluralizers.register(pluralizer, lang)
 
     def create_translator(self):
         translator = DjangoTranslator()

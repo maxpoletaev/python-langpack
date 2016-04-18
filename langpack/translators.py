@@ -33,8 +33,8 @@ class BaseTranslator:
         if not template:
             return str_id
         if isinstance(template, dict):
-            plural_index = get_plural_form(count, lang)
-            template = template.get(plural_index)
+            plural_form = get_plural_form(lang, count)
+            template = template.get(plural_form)
         kwargs['count'] = count
         return safe_format(template, **kwargs)
 

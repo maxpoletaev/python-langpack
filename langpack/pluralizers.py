@@ -1,7 +1,19 @@
-import sys
-this_module = sys.modules[__name__]
+from functools import partial
+pluralizers = {}
+
+ERR_INTEGER = 'Pluralizers support only integer values. Obtained {}.'
 
 
+def register(fn=None, lang=None):
+    if fn is None:
+        return partial(register, lang=lang)
+    if not lang:
+        lang = fn.__name__
+    pluralizers[lang] = fn
+    return fn
+
+
+@register
 def en(count):
     if count == 0:
         return 'zero'
@@ -10,6 +22,7 @@ def en(count):
     return 'many'
 
 
+@register
 def ru(count):
     if count == 0:
         return 'zero'
@@ -23,5 +36,6 @@ def ru(count):
         return 'many'
 
 
-def get_plural_form(count, lang):
-    return getattr(this_module, lang)(count)
+def get_plural_form(lang, count):
+    assert isinstance(count, int), ERR_INTEGER.format(type(count))
+    return pluralizers[lang](count)
