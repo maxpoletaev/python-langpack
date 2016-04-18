@@ -39,7 +39,7 @@ class TestPythonLoader:
 
     def create_test_file(self):
         file_path = os.path.join(tempfile.gettempdir(), 'tets_python_loader.py')
-        contents = '''translations = {'a': 'a!', 'b': 'b!'}'''
+        contents = '''en = {'a': 'a!', 'b': 'b!'}'''
         with open(file_path, 'w') as fp:
             fp.write(contents)
         return file_path
@@ -47,4 +47,4 @@ class TestPythonLoader:
     def test_load_file(self):
         file_path = self.create_test_file()
         result = self.loader.load_file(file_path)
-        test.assert_equal(result, {'a': 'a!', 'b': 'b!'})
+        test.assert_equal(result, {'en': {'a': 'a!', 'b': 'b!'}})

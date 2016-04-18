@@ -46,12 +46,13 @@ class HjsonLoader(BaseLoader):
 
 
 class PythonLoader(BaseLoader):
-    def __init__(self, module_name='translations', *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.module_name = module_name
 
     def load_file(self, file_path):
         module = dict()
         with open(file_path) as f:
             exec(f.read(), module)
-        return module[self.module_name]
+        return {lang: data
+                for lang, data in module.items()
+                if not lang.startswith('__')}
