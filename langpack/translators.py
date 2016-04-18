@@ -44,8 +44,7 @@ class BaseTranslator:
             self.load_file(file_path)
 
     def load_file(self, file_path):
-        *namespace, locale, ext = os.path.basename(file_path).split('.')
-        namespace = '.'.join(namespace) if namespace else None
+        namespace, ext = os.path.basename(file_path).split('.')
 
         try:
             loader = self.loaders[ext]
@@ -53,8 +52,8 @@ class BaseTranslator:
             msg = 'No loader found for .{} file'.format(ext)
             warnings.warn(msg, TranslatorWarning)
         else:
-            translations = loader.load_file(file_path)
-            self.add_translations(locale, namespace, translations)
+            for lang, translations in loader.load_file(file_path).items():
+                self.add_translations(lang, namespace, translations)
 
     def add_translations(self, locale=None, namespace=None, translations={}):
         for str_id, value in translations.items():

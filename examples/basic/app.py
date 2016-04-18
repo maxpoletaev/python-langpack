@@ -1,5 +1,5 @@
 from langpack.translators import Translator
-from langpack.loaders import YamlLoader
+from langpack.loaders import YamlLoader, PythonLoader
 import random
 import os
 
@@ -9,7 +9,7 @@ BASE_DIR = os.path.dirname(__file__)
 # Initialize translator
 translator = Translator()
 translator.register_loader(YamlLoader(), ['yaml', 'yml'])
-translator.load_directory(os.path.join(BASE_DIR, 'locale'))
+translator.load_directory(os.path.join(BASE_DIR, 'locales'))
 
 # Cretae shortcut for translation function
 trans = translator.translate
