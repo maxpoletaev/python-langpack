@@ -15,11 +15,11 @@ def test_register():
     def somelang4(count):
         pass
 
-    saved_registry = pluralizers._registry.copy()
-    test.assert_equal(pluralizers._registry['somelang1'], somelang1)
-    test.assert_equal(pluralizers._registry['somelang2'], somelang2)
-    test.assert_equal(pluralizers._registry['somelang3'], somelang4)
-    pluralizers._registry = saved_registry  # cleanup
+    saved_registry = pluralizers.pluralizers.copy()
+    test.assert_equal(pluralizers.pluralizers['somelang1'], somelang1)
+    test.assert_equal(pluralizers.pluralizers['somelang2'], somelang2)
+    test.assert_equal(pluralizers.pluralizers['somelang3'], somelang4)
+    pluralizers.pluralizers = saved_registry  # cleanup
 
 
 def test_ru():

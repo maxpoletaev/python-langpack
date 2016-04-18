@@ -1,5 +1,5 @@
 from langpack.translators import Translator
-from langpack.loaders import YamlLoader, PythonLoader
+from langpack.loaders import YamlLoader
 import random
 import os
 
@@ -14,15 +14,12 @@ translator.load_directory(os.path.join(BASE_DIR, 'locales'))
 # Cretae shortcut for translation function
 trans = translator.translate
 
-# Just use!
-
+# Activate English and print several strings
 translator.switch_lang('en')
-print('-- en ---')
 print(trans('mainpage.welcome', name='John'))
 print(trans('mainpage.new_messages', count=random.randint(0, 10)))
-print('')
 
+# Activate Russian and print several strings
 translator.switch_lang('ru')
-print('-- ru ---')
 print(trans('mainpage.welcome', name='John'))
 print(trans('mainpage.new_messages', count=random.randint(0, 10)))
