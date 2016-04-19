@@ -1,10 +1,7 @@
 from langpack.translators import Translator
 from nose import tools as test
-
-
-class MockLoader:
-    def load_file(self, file_path):
-        return {}
+from unittest import mock
+import os
 
 
 class TestTranslator:
@@ -21,9 +18,9 @@ class TestTranslator:
         }
 
     def test_register_loader(self):
-        loader = MockLoader()
+        loader = mock.Mock()
         self.translator.register_loader(loader, ['txt'])
-        test.assert_equal(self.translator.loaders.get('txt'), loader)
+        test.assert_equal(self.translator.loaders['txt'], loader)
 
     def test_get_current_lang(self):
         test.assert_equal(self.translator.get_current_lang(), 'en')
@@ -57,3 +54,13 @@ class TestTranslator:
         translations = self.translator.translations['en']
         test.assert_equal(translations.get('blog.comments'), 'Comments')
         test.assert_equal(translations.get('blog.post'), 'Post')
+
+    def test_load_directory(self):
+        loader = mock.Mock()
+        loader.load_file.return_value = {'en': {'foo': 'bar'}}
+
+        locale_dir = os.path.join(os.path.dirname(__file__), 'fixtures')
+        self.translator.loaders['txt'] = loader
+        self.translator.load_directory(locale_dir)
+
+        test.assert_true(loader.load_file.called)

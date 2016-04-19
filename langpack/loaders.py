@@ -1,7 +1,7 @@
 from importlib import import_module
 
 
-class BaseLoader:
+class FileLoader:
     def load_file(self, file_path):
         with open(file_path, 'r') as fp:
             return self.load_contents(fp.read())
@@ -10,7 +10,7 @@ class BaseLoader:
         raise NotImplementedError()
 
 
-class JsonLoader(BaseLoader):
+class JsonLoader(FileLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.json = import_module('json')
@@ -19,7 +19,7 @@ class JsonLoader(BaseLoader):
         return self.json.loads(contents)
 
 
-class YamlLoader(BaseLoader):
+class YamlLoader(FileLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -33,7 +33,7 @@ class YamlLoader(BaseLoader):
         return self.yaml.load(contents)
 
 
-class HjsonLoader(BaseLoader):
+class HjsonLoader(FileLoader):
     def __init__(self, *args, **kwargs):
         try:
             self.hjson = import_module('hjson')
@@ -45,14 +45,14 @@ class HjsonLoader(BaseLoader):
         return self.hjson.loads(contents)
 
 
-class PythonLoader(BaseLoader):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+class PythonLoader:
     def load_file(self, file_path):
         module = dict()
         with open(file_path) as f:
             exec(f.read(), module)
+        return self.load_contents(module)
+
+    def load_contents(self, contents):
         return {lang: data
-                for lang, data in module.items()
-                if not lang.startswith('__')}
+                for lang, data in contents.items()
+                if not lang.startswith('__') and isinstance(data, dict)}

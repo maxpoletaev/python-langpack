@@ -48,3 +48,4 @@ class TestPythonLoader:
         file_path = self.create_test_file()
         result = self.loader.load_file(file_path)
         test.assert_equal(result, {'en': {'a': 'a!', 'b': 'b!'}})
+        os.remove(file_path)

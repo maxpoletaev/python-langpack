@@ -12,10 +12,10 @@ class BaseTranslator:
         self.translations = defaultdict(dict)
         self.loaders = {}
 
-    def switch_lang(self, lang):
+    def switch_lang(self, lang):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_current_lang(self, lang):
+    def get_current_lang(self, lang):  # pragma: no cover
         raise NotImplementedError()
 
     def register_loader(self, loader, extensions):
