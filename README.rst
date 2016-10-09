@@ -6,6 +6,10 @@
     https://coveralls.io/repos/github/zenwalker/python-langpack/badge.svg
     :target: https://coveralls.io/github/zenwalker/python-langpack
 
+.. image::
+  https://img.shields.io/badge/status-beta-yellow.svg
+
+
 ========
 LangPack
 ========
