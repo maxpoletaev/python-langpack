@@ -15,6 +15,7 @@ class LangPackConfig(AppConfig):
     def ready(self):
         self.translator = self.create_translator()
         self.register_pluralizers()
+        self.register_formatters()
         self.load_project_translations()
         if settings.LANGPACK_USE_APP_DIRS:
             self.load_apps_translations()
@@ -23,6 +24,11 @@ class LangPackConfig(AppConfig):
         for lang, fn_path in settings.LANGPACK_PLURALIZERS.items():
             pluralizer = import_string(fn_path)
             pluralizers.register(pluralizer, lang)
+
+    def register_formatters(self):
+        for formatter_path, types in settings.LANGPACK_FORMATTERS:
+            formatter = import_string(formatter_path)
+            self.translator.add_formatter(formatter, types)
 
     def create_translator(self):
         translator = DjangoTranslator()

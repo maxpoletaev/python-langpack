@@ -1,4 +1,4 @@
-def format_datetime(value, format, translator):
+def format_datetime(value, format='default', translator=None):
     if _is_key(format):
         format = translator.get_template('datetime.formats.' + format, default=format)
 

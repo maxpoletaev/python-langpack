@@ -29,6 +29,7 @@ class BaseTranslator:
         self._translations = defaultdict(TranslationStore)
         self._formatters = {}
         self._loaders = {}
+        self._hooks = {}
 
     def set_lang(self, lang):  # pragma: no cover
         raise NotImplementedError()
@@ -36,13 +37,19 @@ class BaseTranslator:
     def get_lang(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_template(self, str_path, default=NOT_RPOVIDED):
-        return self._translations[self.get_lang()].get(str_path, default=default)
+    def get_template(self, str_path, values={}, default=NOT_RPOVIDED):
+        lang = self.get_lang()
+        # if str_path in self._hooks[lang]:
+        #     str_path = self._hooks[lang][str_path](values)
+        return self._translations[lang].get(str_path, default=default)
 
     def add_loader(self, loader, extensions):
         assert type(loader) != type, 'Loader should be an instance, not a class.'
         for ext in extensions:
             self._loaders[ext] = loader
+
+    def add_hook(self, lang, str_path, hook_fn):
+        self._hooks[lang][str_path] = hook_fn
 
     def add_formatter(self, formatter, type_names):
         for type_name in type_names:
@@ -78,14 +85,16 @@ class BaseTranslator:
             for lang, translations in loader.load_file(file_path).items():
                 self.add_translations(lang, translations)
 
-    def translate(self, str_path, count=None, **kwargs):
-        template = self.get_template(str_path)
+    def translate(self, str_path, **kwargs):
+        template = self.get_template(str_path, values=kwargs)
+
         if not template:
             return str_path
+
         if isinstance(template, dict):
-            plural_form = get_plural_form(self.get_lang(), count)
-            template = template.get(plural_form)
-        kwargs['count'] = count
+            count = kwargs.get('count', 0)
+            template = self.pluralize(count, template)
+
         return safe_format(template, **kwargs)
 
     def localize(self, value, format, formatter=None):
@@ -96,6 +105,10 @@ class BaseTranslator:
             raise TranslatorError('Formatter for type {} not found'.format(type_name))
 
         return formatter(value, format, self)
+
+    def pluralize(self, count, variants):
+        plural_form = get_plural_form(self.get_lang(), count)
+        return variants.get(plural_form)
 
 
 class Translator(BaseTranslator):

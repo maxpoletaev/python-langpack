@@ -2,12 +2,14 @@ from django.template import Template, Context
 from collections import defaultdict
 from django.apps import apps
 
+from langpack.translators import TranslationStore
+
 
 class AppTestCase:
     def get_translator(self):
-        app = apps.get_app_config('langpack')
-        app.translator.translations = defaultdict(dict)
-        return app.translator
+        translator = apps.get_app_config('langpack').translator
+        translator._translations = defaultdict(TranslationStore)
+        return translator
 
 
 class TemplateTestCase(AppTestCase):
