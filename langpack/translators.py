@@ -1,65 +1,101 @@
 from collections import defaultdict
+from functools import reduce
 import warnings
 import os
 
-from .exceptions import TranslatorWarning
+from .exceptions import TranslatorWarning, TranslatorError
+from .utils import safe_format, deep_merge
 from .pluralizers import get_plural_form
-from .utils import safe_format
+
+NOT_RPOVIDED = object()
+
+
+class TranslationStore(dict):
+    def __init__(self, initial={}):
+        super().__init__()
+        self.update(initial)
+
+    def get(self, *paths, default=NOT_RPOVIDED):
+        path = '.'.join(paths)
+
+        try:
+            return reduce(lambda d, k: d[k], path.split('.'), self)
+        except KeyError:
+            return path if default is NOT_RPOVIDED else default
 
 
 class BaseTranslator:
     def __init__(self):
-        self.translations = defaultdict(dict)
-        self.loaders = {}
+        self._translations = defaultdict(TranslationStore)
+        self._formatters = {}
+        self._loaders = {}
 
-    def switch_lang(self, lang):  # pragma: no cover
+    def set_lang(self, lang):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_current_lang(self, lang):  # pragma: no cover
+    def get_lang(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def register_loader(self, loader, extensions):
+    def get_template(self, str_path, default=NOT_RPOVIDED):
+        return self._translations[self.get_lang()].get(str_path, default=default)
+
+    def add_loader(self, loader, extensions):
         assert type(loader) != type, 'Loader should be an instance, not a class.'
         for ext in extensions:
-            self.loaders[ext] = loader
+            self._loaders[ext] = loader
 
-    def get_translation(self, str_id):
-        lang = self.get_current_lang()
-        return self.translations[lang].get(str_id)
+    def add_formatter(self, formatter, type_names):
+        for type_name in type_names:
+            if type(type_name) != str:
+                type_name = type_name.__name__
+            self._formatters[type_name] = formatter
 
-    def translate(self, str_id, count=0, **kwargs):
-        template = self.get_translation(str_id)
-        lang = self.get_current_lang()
+    def add_translations(self, lang, translations):
+        deep_merge(self._translations[lang], translations)
+
+    def load_directory(self, directory, recursive=False):
+        if recursive:
+            tree = os.walk(directory)
+            for (dirpath, _, filenames) in tree:
+                for filename in filenames:
+                    file_path = os.path.join(dirpath, filename)
+                    self.load_file(file_path)
+        else:
+            for file_name in os.listdir(directory):
+                file_path = os.path.join(directory, file_name)
+                if os.path.isfile(file_path):
+                    self.load_file(file_path)
+
+    def load_file(self, file_path):
+        ext = os.path.basename(file_path).split('.')[-1]
+
+        try:
+            loader = self._loaders[ext]
+        except KeyError:
+            msg = 'No loader found for {}'.format(file_path)
+            warnings.warn(msg, TranslatorWarning)
+        else:
+            for lang, translations in loader.load_file(file_path).items():
+                self.add_translations(lang, translations)
+
+    def translate(self, str_path, count=None, **kwargs):
+        template = self.get_template(str_path)
         if not template:
-            return str_id
+            return str_path
         if isinstance(template, dict):
-            plural_form = get_plural_form(lang, count)
+            plural_form = get_plural_form(self.get_lang(), count)
             template = template.get(plural_form)
         kwargs['count'] = count
         return safe_format(template, **kwargs)
 
-    def load_directory(self, directory):
-        for file_name in os.listdir(directory):
-            file_path = os.path.join(directory, file_name)
-            self.load_file(file_path)
+    def localize(self, value, format, formatter=None):
+        type_name = type(value).__name__
+        formatter = self._formatters.get(formatter or type_name)
 
-    def load_file(self, file_path):
-        namespace, ext = os.path.basename(file_path).split('.')
+        if not formatter:
+            raise TranslatorError('Formatter for type {} not found'.format(type_name))
 
-        try:
-            loader = self.loaders[ext]
-        except KeyError:
-            msg = 'No loader found for .{} file'.format(ext)
-            warnings.warn(msg, TranslatorWarning)
-        else:
-            for lang, translations in loader.load_file(file_path).items():
-                self.add_translations(lang, namespace, translations)
-
-    def add_translations(self, locale=None, namespace=None, translations={}):
-        for str_id, value in translations.items():
-            if namespace:
-                str_id = '{}.{}'.format(namespace, str_id)
-            self.translations[locale][str_id] = value
+        return formatter(value, format, self)
 
 
 class Translator(BaseTranslator):
@@ -67,8 +103,8 @@ class Translator(BaseTranslator):
         super().__init__(*args, **kwargs)
         self.current_lang = initial_lang
 
-    def get_current_lang(self):
+    def get_lang(self):
         return self.current_lang
 
-    def switch_lang(self, lang):
+    def set_lang(self, lang):
         self.current_lang = lang

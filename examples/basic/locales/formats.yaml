@@ -1,0 +1,16 @@
+en:
+  datetime:
+    formats:
+      short: "%-d/%m/%Y"
+      full: "%-d %B %Y"
+
+    month_names: [~, January, February, March, April, May, June, July, August, September, October, November, December]
+
+
+ru:
+  datetime:
+    formats:
+      short: "%-d/%m/%Y"
+      full: "%-d %B %Y"
+
+    month_names: [~, Января, Февраля, Марта, Апреля, Мая, Июня, Июля, Августа, Сентября, Октября, Ноября, Декабря]

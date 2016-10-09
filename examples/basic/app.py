@@ -1,25 +1,37 @@
 from langpack.translators import Translator
-from langpack.loaders import YamlLoader
+from langpack import loaders, formatters
+from datetime import datetime
 import random
 import os
 
 BASE_DIR = os.path.dirname(__file__)
 
 
-# Initialize translator
+# Initialize translator, loader and formatter
 translator = Translator()
-translator.register_loader(YamlLoader(), ['yaml', 'yml'])
+translator.add_loader(loaders.YamlLoader(), ['yaml', 'yml'])
+translator.add_formatter(formatters.format_datetime, ['datetime'])
 translator.load_directory(os.path.join(BASE_DIR, 'locales'))
 
-# Cretae shortcut for translation function
+
+# Cretae shortcuts and init data
 trans = translator.translate
+localize = translator.localize
+today = datetime.today()
+message_count = random.randint(0, 10)
+
+
+def print_info():
+    print(trans('common.welcome', name='John'))
+    print(trans('common.today', date=localize(today, 'full')))
+    print(trans('common.new_messages', count=message_count))
+    print()
+
 
 # Activate English and print several strings
-translator.switch_lang('en')
-print(trans('mainpage.welcome', name='John'))
-print(trans('mainpage.new_messages', count=random.randint(0, 10)))
+translator.set_lang('en')
+print_info()
 
 # Activate Russian and print several strings
-translator.switch_lang('ru')
-print(trans('mainpage.welcome', name='John'))
-print(trans('mainpage.new_messages', count=random.randint(0, 10)))
+translator.set_lang('ru')
+print_info()

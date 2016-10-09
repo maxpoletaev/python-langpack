@@ -1,8 +1,6 @@
 from functools import partial
 pluralizers = {}
 
-ERR_INTEGER = 'Pluralizers support only integer values. Obtained {}.'
-
 
 def register(fn=None, lang=None):
     if fn is None:
@@ -37,5 +35,5 @@ def ru(count):
 
 
 def get_plural_form(lang, count):
-    assert isinstance(count, int), ERR_INTEGER.format(type(count))
+    assert isinstance(count, int), 'Pluralizers support only integer values. Obtained {}.'.format(type(count))
     return pluralizers[lang](count)

@@ -1,0 +1,18 @@
+en:
+  common:
+    welcome: "Hello, {name}!"
+    today: "Today {date}"
+    new_messages:
+      zero: "You does't have new messages"
+      one: "You have one new message"
+      many: "You have {count} new messages"
+
+ru:
+  common:
+    welcome: "Привет, {name}!"
+    today: "Сегодня {date}"
+    new_messages:
+      zero: "У тебя нет новых сообщений"
+      one: "У тебя одно новое сообщение"
+      two: "У тебя {count} новых сообщения"
+      many: "У тебя {count} новых сообщений"

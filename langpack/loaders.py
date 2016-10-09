@@ -1,7 +1,7 @@
 from importlib import import_module
 
 
-class FileLoader:
+class BaseLoader:
     def load_file(self, file_path):
         with open(file_path, 'r') as fp:
             return self.load_contents(fp.read())
@@ -10,7 +10,7 @@ class FileLoader:
         raise NotImplementedError()
 
 
-class JsonLoader(FileLoader):
+class JsonLoader(BaseLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.json = import_module('json')
@@ -19,7 +19,7 @@ class JsonLoader(FileLoader):
         return self.json.loads(contents)
 
 
-class YamlLoader(FileLoader):
+class YamlLoader(BaseLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -33,7 +33,7 @@ class YamlLoader(FileLoader):
         return self.yaml.load(contents)
 
 
-class HjsonLoader(FileLoader):
+class HjsonLoader(BaseLoader):
     def __init__(self, *args, **kwargs):
         try:
             self.hjson = import_module('hjson')

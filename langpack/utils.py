@@ -1,4 +1,4 @@
-from importlib import import_module
+from copy import deepcopy
 
 
 class safedict(dict):
@@ -10,7 +10,11 @@ def safe_format(source, **kwargs):
     return source.format_map(safedict(**kwargs))
 
 
-def import_class(path):
-    _p = path.split('.')
-    package, class_name = '.'.join(_p[:-1]), _p[-1:][0]
-    return getattr(import_module(package), class_name)
+def deep_merge(result, *dicts):
+    for source in dicts:
+        for key, value in source.items():
+            if key in result and isinstance(result[key], dict):
+                deep_merge(result[key], value)
+            else:
+                result[key] = deepcopy(value)
+    return result
