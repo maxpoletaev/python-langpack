@@ -70,11 +70,34 @@ class TestTranslator:
 
     def test_load_directory(self):
         loader = mock.Mock()
-        loader.load_file.return_value = {'en': {'mainpage': {'foo': 'bar'}}}
+        loader.load_file.return_value = {
+            'en': {'mainpage': {'foo': 'bar'}},
+        }
 
-        locale_dir = os.path.join(os.path.dirname(__file__), 'fixtures')
+        locale_dir = os.path.join(
+            os.path.dirname(__file__),
+            'fixtures/load_directory')
+
         self.translator._loaders['txt'] = loader
         self.translator.load_directory(locale_dir)
+
+        test.assert_true(loader.load_file.called)
+
+    def test_load_directory_recursive(self):
+        loader = mock.Mock()
+        loader.load_file.return_value = {
+            'en': {'mainpage': {'foo': 'bar'}},
+        }
+
+        locale_dir = os.path.join(
+            os.path.dirname(__file__),
+            'fixtures/load_directory_recursive')
+
+        self.translator._loaders['txt'] = loader
+        self.translator.load_directory(locale_dir, recursive=True)
+
+        loader.load_file.assert_called_with(
+            os.path.join(locale_dir, 'inner', 'fixture.txt'))
 
         test.assert_true(loader.load_file.called)
 

@@ -1,5 +1,4 @@
 from collections import defaultdict
-from functools import reduce
 import warnings
 import os
 
