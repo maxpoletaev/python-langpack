@@ -1,4 +1,5 @@
-from langpack.translators import Translator, TranslationStore
+from langpack.translators import Translator
+from langpack.utils import flatten_dict
 from nose import tools as test
 from datetime import datetime
 from unittest import mock
@@ -18,14 +19,14 @@ class TestTranslator:
         test.assert_equal(self.translator.get_lang(), 'en')
 
     def test_get_template(self):
-        self.translator._translations['en'] = TranslationStore({
+        self.translator._translations['en'] = flatten_dict({
             'hello': 'Hello, {name}!',
         })
         translation = self.translator.get_template('hello')
         test.assert_equal(translation, 'Hello, {name}!')
 
     def test_translate(self):
-        self.translator._translations['en'] = TranslationStore({
+        self.translator._translations['en'] = flatten_dict({
             'hello': 'Hello, {name}!',
         })
         result = self.translator.translate('hello', name='John')
@@ -38,7 +39,7 @@ class TestTranslator:
         test.assert_equal(result, 'unknown_str_id')
 
     def test_translate_plural(self):
-        self.translator._translations['en'] = TranslationStore({
+        self.translator._translations['en'] = flatten_dict({
             'i_have_apples': {
                 'zero': 'I have no apples',
                 'one': 'I have one apple',
@@ -64,8 +65,8 @@ class TestTranslator:
         })
 
         translations = self.translator._translations['en']
-        test.assert_equal(translations['blog']['comments'], 'Comments')
-        test.assert_equal(translations['blog']['post'], 'Post')
+        test.assert_equal(translations['blog.comments'], 'Comments')
+        test.assert_equal(translations['blog.post'], 'Post')
 
     def test_load_directory(self):
         loader = mock.Mock()
@@ -78,7 +79,7 @@ class TestTranslator:
         test.assert_true(loader.load_file.called)
 
     def test_localize(self):
-        self.translator._translations['en'] = TranslationStore({
+        self.translator._translations['en'] = flatten_dict({
             'datetime': {
                 'formats': {
                     'short': '%d.%M.%Y',
@@ -95,16 +96,3 @@ class TestTranslator:
 
         assert self.translator.localize(now, 'short') == now.strftime('%d.%M.%Y')
         assert self.translator.localize(now, '%d.%M.%Y') == now.strftime('%d.%M.%Y')
-
-
-class TestTranslationStore:
-    def setup(self):
-        self.store = TranslationStore()
-
-    def test_get(self):
-        self.store['en'] = {
-            'hello': 'Hello',
-            'inner': {'hello': 'Inner hello'}
-        }
-        assert self.store.get('en', 'hello') == 'Hello'
-        assert self.store.get('en', 'inner.hello') == 'Inner hello'

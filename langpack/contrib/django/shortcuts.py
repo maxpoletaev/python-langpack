@@ -12,9 +12,4 @@ def localize(*args, **kwargs):
     return app_config.translator.localize(*args, **kwargs)
 
 
-def plural(count, **variants):
-    app_config = apps.get_app_config('langpack')
-    return app_config.translator.pluralize(count, variants)
-
-
 trans_lazy = lazy(trans, str)

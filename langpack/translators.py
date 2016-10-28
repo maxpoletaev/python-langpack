@@ -4,29 +4,15 @@ import warnings
 import os
 
 from .exceptions import TranslatorWarning, TranslatorError
-from .utils import safe_format, deep_merge
+from .utils import safe_format, flatten_dict
 from .pluralizers import get_plural_form
 
 NOT_RPOVIDED = object()
 
 
-class TranslationStore(dict):
-    def __init__(self, initial={}):
-        super().__init__()
-        self.update(initial)
-
-    def get(self, *paths, default=NOT_RPOVIDED):
-        path = '.'.join(paths)
-
-        try:
-            return reduce(lambda d, k: d[k], path.split('.'), self)
-        except KeyError:
-            return path if default is NOT_RPOVIDED else default
-
-
 class BaseTranslator:
     def __init__(self):
-        self._translations = defaultdict(TranslationStore)
+        self._translations = defaultdict(dict)
         self._formatters = {}
         self._loaders = {}
         self._hooks = {}
@@ -37,11 +23,11 @@ class BaseTranslator:
     def get_lang(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_template(self, str_path, values={}, default=NOT_RPOVIDED):
+    def get_template(self, str_path, values={}, default=None):
         lang = self.get_lang()
         # if str_path in self._hooks[lang]:
         #     str_path = self._hooks[lang][str_path](values)
-        return self._translations[lang].get(str_path, default=default)
+        return self._translations[lang].get(str_path, default)
 
     def add_loader(self, loader, extensions):
         assert type(loader) != type, 'Loader should be an instance, not a class.'
@@ -58,7 +44,7 @@ class BaseTranslator:
             self._formatters[type_name] = formatter
 
     def add_translations(self, lang, translations):
-        deep_merge(self._translations[lang], translations)
+        self._translations[lang].update(flatten_dict(translations))
 
     def load_directory(self, directory, recursive=False):
         if recursive:
@@ -87,13 +73,14 @@ class BaseTranslator:
 
     def translate(self, str_path, **kwargs):
         template = self.get_template(str_path, values=kwargs)
+        count = kwargs.get('count', None)
+
+        if not template and count is not None:
+            plural_form = get_plural_form(self.get_lang(), count)
+            template = self.get_template(str_path + '.' + plural_form)
 
         if not template:
             return str_path
-
-        if isinstance(template, dict):
-            count = kwargs.get('count', 0)
-            template = self.pluralize(count, template)
 
         return safe_format(template, **kwargs)
 
@@ -105,10 +92,6 @@ class BaseTranslator:
             raise TranslatorError('Formatter for type {} not found'.format(type_name))
 
         return formatter(value, format, self)
-
-    def pluralize(self, count, variants):
-        plural_form = get_plural_form(self.get_lang(), count)
-        return variants.get(plural_form)
 
 
 class Translator(BaseTranslator):

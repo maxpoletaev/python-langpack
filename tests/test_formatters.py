@@ -1,14 +1,15 @@
 from langpack.formatters import format_datetime
-from langpack.translators import TranslationStore, NOT_RPOVIDED
+from langpack.translators import NOT_RPOVIDED
+from langpack.utils import flatten_dict
 from datetime import datetime
 
 
 class TranslatorMock:
     def __init__(self, initial={}):
-        self._translations = TranslationStore(initial)
+        self._translations = flatten_dict(initial)
 
     def get_template(self, str_path, default=NOT_RPOVIDED):
-        return self._translations.get(str_path, default=default)
+        return self._translations.get(str_path, default)
 
 
 def test_format_datetime():
