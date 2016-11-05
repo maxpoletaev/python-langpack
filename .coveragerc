@@ -1,5 +1,6 @@
 [run]
 source = langpack
+branch = true
 
 [report]
 include = ./langpack/*
